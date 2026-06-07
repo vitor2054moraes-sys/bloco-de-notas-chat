@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bloco de Notas + Chat</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>🗒️ Bloco de Notas + Chat</h1>
+        <p>Tarefas, anotações e comandos — tudo em um só lugar</p>
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Alternar tema">🌙</button>
+    </header>
+
+    <div class="grid">
+      <!-- TAREFAS -->
+      <section class="panel">
+        <h2>✅ Minhas tarefas</h2>
+        <div class="add-row">
+          <input type="text" id="taskInput" placeholder="Nova tarefa...">
+          <select id="prioritySelect" title="Prioridade">
+            <option value="low">🟢 Baixa</option>
+            <option value="med" selected>🟡 Média</option>
+            <option value="high">🔴 Alta</option>
+          </select>
+          <button class="btn primary" id="addBtn">Adicionar</button>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn neutral" id="shuffleBtn" title="Embaralhar">🎲</button>
+          <button class="btn neutral" id="restoreBtn" title="Voltar ordem">↩️</button>
+          <button class="btn neutral" id="clearDoneBtn" title="Limpar concluídas">🧹</button>
+          <div class="filters">
+            <button class="filter active" data-filter="all">Todas</button>
+            <button class="filter" data-filter="active">Ativas</button>
+            <button class="filter" data-filter="done">Feitas</button>
+          </div>
+        </div>
+
+        <div class="progress" id="progress"></div>
+        <ul class="tasks" id="taskList"></ul>
+      </section>
+
+      <!-- BLOCO DE NOTAS INDEPENDENTE -->
+      <section class="panel">
+        <h2>🗒️ Bloco de notas</h2>
+        <div class="format-bar" data-target="globalNote">
+          <button data-cmd="bold"><b>B</b></button>
+          <button data-cmd="italic"><i>I</i></button>
+          <button data-cmd="underline"><u>U</u></button>
+          <button data-cmd="strikeThrough"><s>S</s></button>
+          <button data-cmd="insertUnorderedList">• Lista</button>
+          <button data-cmd="removeFormat">✖ Limpar</button>
+        </div>
+        <div class="note-area" id="globalNote" contenteditable="true"
+             data-placeholder="Escreva suas anotações aqui..."></div>
+      </section>
+
+      <!-- CHAT -->
+      <section class="panel chat-panel">
+        <h2>💬 Chat de comandos</h2>
+        <div class="chat-box" id="chatBox"></div>
+        <div class="chat-input">
+          <input type="text" id="chatInput" placeholder="Digite um comando...">
+          <button class="btn primary" id="sendBtn">Enviar</button>
+        </div>
+        <p class="hint">
+          Comandos: <code>add tarefa</code> · <code>done nº</code> · <code>del nº</code> · <code>clear</code> · <code>help</code>
+        </p>
+      </section>
+    </div>
+  </div>
+
+  <!-- Scripts (ordem importa) -->
+  <script src="js/storage.js"></script>
+  <script src="js/tasks.js"></script>
+  <script src="js/notes.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
