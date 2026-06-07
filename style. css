@@ -1,0 +1,161 @@
+:root {
+  --bg: #f4f6fb;
+  --panel: #ffffff;
+  --text: #1a1f36;
+  --muted: #6b7280;
+  --border: #eef1f7;
+  --border-strong: #d8deea;
+  --primary: #4cafef;
+  --primary-soft: #eef1f7;
+  --shadow: 0 4px 18px rgba(30,60,114,0.08);
+}
+body.dark {
+  --bg: #0f1420;
+  --panel: #1a2030;
+  --text: #e6e9f0;
+  --muted: #8b93a7;
+  --border: #2a3142;
+  --border-strong: #3a4256;
+  --primary: #4cafef;
+  --primary-soft: #232b3d;
+  --shadow: 0 4px 18px rgba(0,0,0,0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh; padding: 24px 16px; transition: background .3s, color .3s;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+
+header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 24px;
+}
+header h1 { font-size: 24px; }
+header p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+.theme-toggle {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; font-size: 20px; padding: 8px 12px; cursor: pointer;
+  transition: .2s;
+}
+.theme-toggle:hover { transform: scale(1.05); }
+
+.grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media (min-width: 900px) {
+  .grid { grid-template-columns: 1.2fr 1fr; }
+  .chat-panel { grid-column: 1 / -1; }
+}
+
+.panel {
+  background: var(--panel); border-radius: 14px; padding: 20px;
+  box-shadow: var(--shadow);
+}
+.panel h2 { font-size: 16px; margin-bottom: 14px; }
+
+/* Form */
+.add-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.add-row input[type="text"] {
+  flex: 1; min-width: 140px; padding: 11px 14px;
+  border: 1px solid var(--border-strong); border-radius: 9px;
+  font-size: 14px; outline: none; background: var(--panel); color: var(--text);
+}
+.add-row input:focus { border-color: var(--primary); }
+.add-row select {
+  padding: 11px 10px; border: 1px solid var(--border-strong);
+  border-radius: 9px; background: var(--panel); color: var(--text); cursor: pointer;
+}
+
+.btn {
+  border: none; border-radius: 9px; cursor: pointer; font-size: 14px;
+  font-weight: 600; padding: 11px 16px; transition: .15s; color: #fff;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn.primary { background: var(--primary); }
+.btn.neutral { background: var(--primary-soft); color: var(--text); }
+
+.toolbar { display: flex; gap: 8px; margin-bottom: 14px; align-items: center; flex-wrap: wrap; }
+.filters { display: flex; gap: 4px; margin-left: auto; }
+.filter {
+  border: 1px solid var(--border); background: transparent; color: var(--muted);
+  border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer; transition: .15s;
+}
+.filter.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+.progress { font-size: 13px; color: var(--muted); margin-bottom: 12px; font-weight: 600; }
+.bar { height: 6px; background: var(--border); border-radius: 4px; margin-top: 6px; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: #16a34a; transition: width .3s; }
+
+/* Tarefas */
+ul.tasks { list-style: none; }
+ul.tasks li {
+  display: flex; align-items: center; gap: 10px; padding: 12px;
+  border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px;
+  transition: .15s; flex-wrap: wrap;
+}
+ul.tasks li.done .txt { text-decoration: line-through; color: var(--muted); }
+.prio { width: 6px; align-self: stretch; border-radius: 4px; }
+.prio.low { background: #16a34a; }
+.prio.med { background: #eab308; }
+.prio.high { background: #ef4444; }
+.num {
+  width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%;
+  background: var(--primary-soft); color: var(--muted); font-size: 12px;
+  font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+.txt { flex: 1; font-size: 14px; min-width: 100px; }
+.txt[contenteditable="true"] { outline: 2px solid var(--primary); border-radius: 4px; padding: 2px 4px; }
+.icon-btn {
+  border: none; background: none; cursor: pointer; font-size: 16px;
+  padding: 4px; border-radius: 6px; transition: .15s; color: var(--text);
+}
+.icon-btn:hover { background: var(--primary-soft); }
+.empty { text-align: center; color: var(--muted); padding: 24px; font-size: 14px; }
+
+/* Anotação dentro da tarefa */
+.task-note {
+  width: 100%; margin-top: 8px; padding: 10px; border-radius: 8px;
+  border: 1px dashed var(--border-strong); background: var(--bg);
+  font-size: 13px; outline: none; min-height: 40px;
+}
+.task-note:empty:before { content: attr(data-placeholder); color: var(--muted); }
+.hidden { display: none; }
+
+/* Barra de formatação */
+.format-bar { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+.format-bar button {
+  border: 1px solid var(--border); background: var(--panel); color: var(--text);
+  border-radius: 7px; padding: 6px 10px; font-size: 13px; cursor: pointer; transition: .15s;
+}
+.format-bar button:hover { background: var(--primary-soft); }
+
+.note-area {
+  min-height: 240px; border: 1px solid var(--border-strong); border-radius: 10px;
+  padding: 14px; font-size: 14px; line-height: 1.6; outline: none;
+  background: var(--bg); color: var(--text);
+}
+.note-area:empty:before { content: attr(data-placeholder); color: var(--muted); }
+.note-area:focus { border-color: var(--primary); }
+
+/* Chat */
+.chat-box {
+  height: 220px; overflow-y: auto; border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px; margin-bottom: 12px; background: var(--bg);
+}
+.msg { margin-bottom: 10px; font-size: 13px; }
+.msg .who { font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; }
+.msg.user .who { color: var(--primary); }
+.msg.bot .who { color: #16a34a; }
+.msg .body {
+  display: inline-block; margin-top: 2px; padding: 7px 11px; border-radius: 9px;
+  background: var(--panel); border: 1px solid var(--border);
+}
+.chat-input { display: flex; gap: 8px; }
+.chat-input input {
+  flex: 1; padding: 11px 14px; border: 1px solid var(--border-strong);
+  border-radius: 9px; font-size: 14px; outline: none; background: var(--panel); color: var(--text);
+}
+.chat-input input:focus { border-color: var(--primary); }
+.hint { font-size: 11px; color: var(--muted); margin-top: 8px; }
+.hint code { background: var(--primary-soft); padding: 1px 6px; border-radius: 4px; }
