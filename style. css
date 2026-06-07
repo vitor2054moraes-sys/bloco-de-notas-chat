@@ -159,4 +159,3 @@ ul.tasks li.done .txt { text-decoration: line-through; color: var(--muted); }
 .chat-input input:focus { border-color: var(--primary); }
 .hint { font-size: 11px; color: var(--muted); margin-top: 8px; }
 .hint code { background: var(--primary-soft); padding: 1px 6px; border-radius: 4px; }
-
