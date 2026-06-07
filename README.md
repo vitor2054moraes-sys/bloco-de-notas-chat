@@ -1,3 +1,4 @@
+Bloco de notas + Chat
 Um aplicativo web **simples e profissional** para gerenciar tarefas, fazer anotações
 e interagir por comandos — tudo rodando no navegador, sem servidor.
 
