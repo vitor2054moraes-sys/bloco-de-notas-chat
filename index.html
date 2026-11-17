@@ -2,83 +2,101 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bloco de Notas + Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Segurança: só arquivos deste site; nada de script embutido nem de fora (o texto colado não roda nada). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <title>Prosa — tarefas, notas e comandos</title>
+  <meta name="description" content="Prosa: tarefas com anotação, bloco de notas com formatação e um chat de comandos. Tudo fica no seu navegador.">
+  <meta name="theme-color" content="#2557d6">
+  <link rel="icon" href="icone.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body data-aba="tarefas">
   <div class="container">
-    <header>
+    <header class="topo">
       <div>
-        <h1>🗒️ Bloco de Notas + Chat</h1>
-        <p>Tarefas, anotações e comandos — tudo em um só lugar</p>
+        <h1 class="marca"><img src="icone.svg" alt="" width="30" height="30"> Prosa</h1>
+        <p class="lema">Tarefas, anotações e comandos — tudo num lugar só</p>
       </div>
-      <button class="theme-toggle" id="themeToggle" title="Alternar tema">🌙</button>
+      <button type="button" class="tema" id="botaoTema" aria-label="Tema escuro" title="Tema escuro"></button>
     </header>
 
-    <div class="grid">
-      <!-- TAREFAS -->
-      <section class="panel">
-        <h2>✅ Minhas tarefas</h2>
-        <div class="add-row">
-          <input type="text" id="taskInput" placeholder="Nova tarefa...">
-          <select id="prioritySelect" title="Prioridade">
-            <option value="low">🟢 Baixa</option>
-            <option value="med" selected>🟡 Média</option>
-            <option value="high">🔴 Alta</option>
-          </select>
-          <button class="btn primary" id="addBtn">Adicionar</button>
-        </div>
+    <!-- No celular, uma parte por vez (abas); no computador, todas à vista. -->
+    <nav class="abas" role="tablist" aria-label="Partes do Prosa">
+      <button type="button" role="tab" data-aba="tarefas" aria-controls="painel-tarefas" aria-selected="true">Tarefas</button>
+      <button type="button" role="tab" data-aba="notas" aria-controls="painel-notas" aria-selected="false">Notas</button>
+      <button type="button" role="tab" data-aba="chat" aria-controls="painel-chat" aria-selected="false">Chat</button>
+    </nav>
 
-        <div class="toolbar">
-          <button class="btn neutral" id="shuffleBtn" title="Embaralhar">🎲</button>
-          <button class="btn neutral" id="restoreBtn" title="Voltar ordem">↩️</button>
-          <button class="btn neutral" id="clearDoneBtn" title="Limpar concluídas">🧹</button>
-          <div class="filters">
-            <button class="filter active" data-filter="all">Todas</button>
-            <button class="filter" data-filter="active">Ativas</button>
-            <button class="filter" data-filter="done">Feitas</button>
+    <main class="grade">
+      <!-- TAREFAS -->
+      <section class="painel" id="painel-tarefas" role="tabpanel" aria-labelledby="titulo-tarefas">
+        <h2 id="titulo-tarefas">Minhas tarefas</h2>
+        <form class="linha" id="formTarefa" autocomplete="off">
+          <label class="oculto" for="campoTarefa">Nova tarefa</label>
+          <input type="text" id="campoTarefa" placeholder="Nova tarefa…" maxlength="200" required>
+          <label class="oculto" for="campoPrioridade">Prioridade</label>
+          <select id="campoPrioridade">
+            <option value="low">Baixa</option>
+            <option value="med" selected>Média</option>
+            <option value="high">Alta</option>
+          </select>
+          <button type="submit" class="botao principal">Adicionar</button>
+        </form>
+
+        <div class="ferramentas">
+          <button type="button" class="botao neutro" id="botaoEmbaralhar">Embaralhar</button>
+          <button type="button" class="botao neutro" id="botaoOrdem">Ordem original</button>
+          <button type="button" class="botao neutro" id="botaoApagarFeitas">Apagar feitas</button>
+          <div class="filtros" role="group" aria-label="Mostrar">
+            <button type="button" class="filtro" data-filtro="all" aria-pressed="true">Todas</button>
+            <button type="button" class="filtro" data-filtro="active" aria-pressed="false">Ativas</button>
+            <button type="button" class="filtro" data-filtro="done" aria-pressed="false">Feitas</button>
           </div>
         </div>
 
-        <div class="progress" id="progress"></div>
-        <ul class="tasks" id="taskList"></ul>
+        <p class="progresso" id="progresso" aria-live="polite"></p>
+        <ul class="tarefas" id="listaTarefas"></ul>
       </section>
 
-      <!-- BLOCO DE NOTAS INDEPENDENTE -->
-      <section class="panel">
-        <h2>🗒️ Bloco de notas</h2>
-        <div class="format-bar" data-target="globalNote">
-          <button data-cmd="bold"><b>B</b></button>
-          <button data-cmd="italic"><i>I</i></button>
-          <button data-cmd="underline"><u>U</u></button>
-          <button data-cmd="strikeThrough"><s>S</s></button>
-          <button data-cmd="insertUnorderedList">• Lista</button>
-          <button data-cmd="removeFormat">✖ Limpar</button>
+      <!-- BLOCO DE NOTAS -->
+      <section class="painel" id="painel-notas" role="tabpanel" aria-labelledby="titulo-notas">
+        <h2 id="titulo-notas">Bloco de notas</h2>
+        <div class="formatar" role="toolbar" aria-label="Formatação">
+          <button type="button" data-cmd="bold" aria-label="Negrito"><b>N</b></button>
+          <button type="button" data-cmd="italic" aria-label="Itálico"><i>I</i></button>
+          <button type="button" data-cmd="underline" aria-label="Sublinhado"><u>S</u></button>
+          <button type="button" data-cmd="strikeThrough" aria-label="Riscado"><s>R</s></button>
+          <button type="button" data-cmd="insertUnorderedList">• Lista</button>
+          <button type="button" data-cmd="removeFormat">Limpar formato</button>
         </div>
-        <div class="note-area" id="globalNote" contenteditable="true"
-             data-placeholder="Escreva suas anotações aqui..."></div>
+        <div class="area-notas" id="notas" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Bloco de notas"
+             data-placeholder="Escreva suas anotações aqui…"></div>
+        <p class="dica" id="notasSalvas" aria-live="polite"></p>
       </section>
 
       <!-- CHAT -->
-      <section class="panel chat-panel">
-        <h2>💬 Chat de comandos</h2>
-        <div class="chat-box" id="chatBox"></div>
-        <div class="chat-input">
-          <input type="text" id="chatInput" placeholder="Digite um comando...">
-          <button class="btn primary" id="sendBtn">Enviar</button>
-        </div>
-        <p class="hint">
-          Comandos: <code>add tarefa</code> · <code>done nº</code> · <code>del nº</code> · <code>clear</code> · <code>help</code>
-        </p>
+      <section class="painel chat" id="painel-chat" role="tabpanel" aria-labelledby="titulo-chat">
+        <h2 id="titulo-chat">Chat de comandos</h2>
+        <div class="conversa" id="conversa" aria-live="polite"></div>
+        <form class="linha" id="formChat" autocomplete="off">
+          <label class="oculto" for="campoChat">Comando</label>
+          <input type="text" id="campoChat" placeholder="Ex.: add comprar pão" maxlength="200">
+          <button type="submit" class="botao principal">Enviar</button>
+        </form>
+        <p class="dica">Comandos: <code>add tarefa</code> · <code>done nº</code> · <code>del nº</code> · <code>list</code> ·
+          <code>clear</code> · <code>help</code> (ou em português: adicionar, feito, apagar, lista, limpar, ajuda)</p>
       </section>
-    </div>
+    </main>
   </div>
 
-  <!-- Scripts (ordem importa) -->
-  <script src="js/storage.js"></script>
-  <script src="js/tasks.js"></script>
-  <script src="js/notes.js"></script>
+  <div class="aviso" id="aviso" role="status" aria-live="polite" hidden></div>
+
+  <!-- A ordem importa: cada arquivo usa os de cima. -->
+  <script src="js/armazenamento.js"></script>
+  <script src="js/tela.js"></script>
+  <script src="js/tarefas.js"></script>
+  <script src="js/notas.js"></script>
   <script src="js/chat.js"></script>
   <script src="js/app.js"></script>
 </body>
