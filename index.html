@@ -2,84 +2,315 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bloco de Notas + Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Segurança: só arquivos deste site; nada de script embutido nem de fora (o texto colado não roda nada). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <title>Prosa — tarefas, notas, calculadora e chat</title>
+  <meta name="description" content="Prosa: tarefas, bloco de notas, calculadora (comum, científica e financeira) e um chat de comandos num app só. Tudo fica no seu navegador.">
+  <meta name="theme-color" content="#2557d6">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="icone.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icone-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="css/style.css">
+  <!-- Um arquivo de código só, pedido já no começo (defer: não segura o desenho da página). -->
+  <script src="js/prosa.js" defer></script>
 </head>
-<body>
-  <div class="container">
-    <header>
-      <div>
-        <h1>🗒️ Bloco de Notas + Chat</h1>
-        <p>Tarefas, anotações e comandos — tudo em um só lugar</p>
-      </div>
-      <button class="theme-toggle" id="themeToggle" title="Alternar tema">🌙</button>
-    </header>
+<body data-aba="tarefas">
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 
-    <div class="grid">
-      <!-- TAREFAS -->
-      <section class="panel">
-        <h2>✅ Minhas tarefas</h2>
-        <div class="add-row">
-          <input type="text" id="taskInput" placeholder="Nova tarefa...">
-          <select id="prioritySelect" title="Prioridade">
-            <option value="low">🟢 Baixa</option>
-            <option value="med" selected>🟡 Média</option>
-            <option value="high">🔴 Alta</option>
-          </select>
-          <button class="btn primary" id="addBtn">Adicionar</button>
-        </div>
-
-        <div class="toolbar">
-          <button class="btn neutral" id="shuffleBtn" title="Embaralhar">🎲</button>
-          <button class="btn neutral" id="restoreBtn" title="Voltar ordem">↩️</button>
-          <button class="btn neutral" id="clearDoneBtn" title="Limpar concluídas">🧹</button>
-          <div class="filters">
-            <button class="filter active" data-filter="all">Todas</button>
-            <button class="filter" data-filter="active">Ativas</button>
-            <button class="filter" data-filter="done">Feitas</button>
-          </div>
-        </div>
-
-        <div class="progress" id="progress"></div>
-        <ul class="tasks" id="taskList"></ul>
-      </section>
-
-      <!-- BLOCO DE NOTAS INDEPENDENTE -->
-      <section class="panel">
-        <h2>🗒️ Bloco de notas</h2>
-        <div class="format-bar" data-target="globalNote">
-          <button data-cmd="bold"><b>B</b></button>
-          <button data-cmd="italic"><i>I</i></button>
-          <button data-cmd="underline"><u>U</u></button>
-          <button data-cmd="strikeThrough"><s>S</s></button>
-          <button data-cmd="insertUnorderedList">• Lista</button>
-          <button data-cmd="removeFormat">✖ Limpar</button>
-        </div>
-        <div class="note-area" id="globalNote" contenteditable="true"
-             data-placeholder="Escreva suas anotações aqui..."></div>
-      </section>
-
-      <!-- CHAT -->
-      <section class="panel chat-panel">
-        <h2>💬 Chat de comandos</h2>
-        <div class="chat-box" id="chatBox"></div>
-        <div class="chat-input">
-          <input type="text" id="chatInput" placeholder="Digite um comando...">
-          <button class="btn primary" id="sendBtn">Enviar</button>
-        </div>
-        <p class="hint">
-          Comandos: <code>add tarefa</code> · <code>done nº</code> · <code>del nº</code> · <code>clear</code> · <code>help</code>
-        </p>
-      </section>
+  <!-- Atalhos no topo: um toque troca de parte, na hora, sem carregar outra página. -->
+  <header class="topo">
+    <div class="barra">
+      <span class="marca">
+        <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 7.5A2.5 2.5 0 0 1 7.5 5h17A2.5 2.5 0 0 1 27 7.5v12a2.5 2.5 0 0 1-2.5 2.5H13l-6 5v-5h0.5A2.5 2.5 0 0 1 5 19.5z"/></svg>
+        <span class="marca-nome">Prosa</span>
+      </span>
+      <nav class="atalhos" aria-label="Partes do Prosa">
+        <a href="#tarefas" data-aba="tarefas" aria-current="page" title="Tarefas (Alt+1)">
+          <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6h10M10 12h10M10 18h10M3.5 6l1.5 1.5L7.5 5M3.5 12l1.5 1.5 2.5-2.5M3.5 18l1.5 1.5 2.5-2.5"/></svg>
+          <span class="rotulo">Tarefas</span>
+          <span class="contador" id="contador-tarefas" hidden></span>
+        </a>
+        <a href="#notas" data-aba="notas" title="Notas (Alt+2)">
+          <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l3 3v15H6z M9 10h6 M9 14h6 M9 18h4"/></svg>
+          <span class="rotulo">Notas</span>
+        </a>
+        <a href="#calculadora" data-aba="calculadora" title="Calculadora (Alt+3)">
+          <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h6M7 4.5v6M14 7.5h6M4 17h6M14 15.5h6M14 19h6"/></svg>
+          <span class="rotulo">Calculadora</span>
+        </a>
+        <a href="#chat" data-aba="chat" title="Chat (Alt+4)">
+          <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 4v-4h0A1.5 1.5 0 0 1 4 14.5z"/></svg>
+          <span class="rotulo">Chat</span>
+        </a>
+      </nav>
+      <button type="button" class="tema" id="botao-tema" aria-label="Tema escuro" title="Tema escuro"></button>
     </div>
-  </div>
+  </header>
 
-  <!-- Scripts (ordem importa) -->
-  <script src="js/storage.js"></script>
-  <script src="js/tasks.js"></script>
-  <script src="js/notes.js"></script>
-  <script src="js/chat.js"></script>
-  <script src="js/app.js"></script>
+  <main class="conteudo" id="conteudo" tabindex="-1">
+    <!-- ================= TAREFAS (o antigo Tique + as tarefas do Prosa) ================= -->
+    <section class="painel" id="painel-tarefas" aria-labelledby="titulo-tarefas">
+      <div class="cabeca">
+        <h1 id="titulo-tarefas">Tarefas</h1>
+        <p class="resumo" id="resumo-tarefas" aria-live="polite"></p>
+      </div>
+
+      <form class="cartao nova" id="form-tarefa" autocomplete="off">
+        <div class="linha">
+          <label class="oculto" for="campo-tarefa">Nova tarefa</label>
+          <input type="text" id="campo-tarefa" placeholder="Nova tarefa…" maxlength="200" required>
+          <button type="submit" class="botao principal">Adicionar</button>
+        </div>
+        <div class="detalhes">
+          <label class="campo">Prioridade
+            <select id="campo-prioridade">
+              <option value="alta">Alta</option>
+              <option value="media" selected>Média</option>
+              <option value="baixa">Baixa</option>
+            </select>
+          </label>
+          <label class="campo">Categoria
+            <select id="campo-categoria">
+              <option value="trabalho">Trabalho</option>
+              <option value="pessoal" selected>Pessoal</option>
+              <option value="estudos">Estudos</option>
+            </select>
+          </label>
+          <label class="campo prazo">Prazo (opcional)
+            <input type="date" id="campo-prazo">
+          </label>
+        </div>
+      </form>
+
+      <div class="ferramentas">
+        <label class="oculto" for="campo-busca">Buscar nas tarefas</label>
+        <input type="search" id="campo-busca" placeholder="Buscar…" autocomplete="off">
+        <div class="segmentos" role="group" aria-label="Mostrar">
+          <button type="button" data-status="todas" aria-pressed="true">Todas</button>
+          <button type="button" data-status="pendentes" aria-pressed="false">Pendentes</button>
+          <button type="button" data-status="feitas" aria-pressed="false">Feitas</button>
+        </div>
+        <details class="mais">
+          <summary>Mais opções</summary>
+          <div class="mais-campos">
+            <label class="campo">Categoria
+              <select id="filtro-categoria">
+                <option value="todas">Todas</option>
+                <option value="trabalho">Trabalho</option>
+                <option value="pessoal">Pessoal</option>
+                <option value="estudos">Estudos</option>
+              </select>
+            </label>
+            <label class="campo">Ordem
+              <select id="campo-ordem">
+                <option value="prioridade">Prioridade e prazo</option>
+                <option value="criacao">Ordem em que criei</option>
+                <option value="embaralhada">Embaralhada</option>
+              </select>
+            </label>
+            <button type="button" class="botao neutro" id="botao-embaralhar" hidden>Embaralhar de novo</button>
+            <button type="button" class="botao neutro" id="botao-apagar-feitas">Apagar as feitas</button>
+          </div>
+        </details>
+      </div>
+
+      <div class="progresso" id="progresso" aria-hidden="true"><progress id="barra-progresso" max="1" value="0"></progress></div>
+      <ul class="tarefas" id="lista-tarefas"></ul>
+    </section>
+
+    <!-- ================= NOTAS ================= -->
+    <section class="painel" id="painel-notas" aria-labelledby="titulo-notas">
+      <div class="cabeca">
+        <h1 id="titulo-notas">Notas</h1>
+        <p class="resumo" id="notas-salvas" aria-live="polite"></p>
+      </div>
+      <div class="cartao">
+        <div class="formatar" role="toolbar" aria-label="Formatação">
+          <button type="button" data-cmd="bold" aria-label="Negrito"><b>N</b></button>
+          <button type="button" data-cmd="italic" aria-label="Itálico"><i>I</i></button>
+          <button type="button" data-cmd="underline" aria-label="Sublinhado"><u>S</u></button>
+          <button type="button" data-cmd="strikeThrough" aria-label="Riscado"><s>R</s></button>
+          <button type="button" data-cmd="insertUnorderedList">• Lista</button>
+          <button type="button" data-cmd="removeFormat">Limpar formato</button>
+        </div>
+        <div class="area-notas" id="notas" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Bloco de notas"
+             data-placeholder="Escreva suas anotações aqui… (salva sozinho)"></div>
+      </div>
+    </section>
+
+    <!-- ================= CALCULADORA (a antiga Cifra) ================= -->
+    <section class="painel" id="painel-calculadora" aria-labelledby="titulo-calculadora">
+      <div class="calc">
+        <div class="cabeca">
+          <h1 id="titulo-calculadora">Calculadora</h1>
+          <p class="resumo" id="calc-modo-nome">Comum</p>
+        </div>
+
+        <nav class="modos" role="tablist" aria-label="Modos da calculadora">
+          <button type="button" role="tab" data-modo="comum" aria-selected="true">Comum</button>
+          <button type="button" role="tab" data-modo="cientifico" aria-selected="false">Científica</button>
+          <button type="button" role="tab" data-modo="financeiro" aria-selected="false">Financeira</button>
+          <button type="button" role="tab" data-modo="taxas" aria-selected="false">Taxas</button>
+          <button type="button" role="tab" data-modo="amortizacao" aria-selected="false">Amortização</button>
+        </nav>
+
+        <div class="visor" id="calc-visor">
+          <p class="conta" id="calc-conta" aria-hidden="true"></p>
+          <output id="calc-resultado" aria-live="polite">0</output>
+        </div>
+
+        <div class="teclas" id="calc-comum">
+          <button type="button" class="func" data-acao="limpar" aria-label="Limpar">C</button>
+          <button type="button" class="func" data-acao="apagar" aria-label="Apagar">⌫</button>
+          <button type="button" class="func" data-acao="porcentagem" aria-label="Porcentagem">%</button>
+          <button type="button" class="op" data-tecla="÷" aria-label="Dividir">÷</button>
+          <button type="button" data-tecla="7">7</button>
+          <button type="button" data-tecla="8">8</button>
+          <button type="button" data-tecla="9">9</button>
+          <button type="button" class="op" data-tecla="×" aria-label="Multiplicar">×</button>
+          <button type="button" data-tecla="4">4</button>
+          <button type="button" data-tecla="5">5</button>
+          <button type="button" data-tecla="6">6</button>
+          <button type="button" class="op" data-tecla="−" aria-label="Menos">−</button>
+          <button type="button" data-tecla="1">1</button>
+          <button type="button" data-tecla="2">2</button>
+          <button type="button" data-tecla="3">3</button>
+          <button type="button" class="op" data-tecla="+" aria-label="Mais">+</button>
+          <button type="button" data-tecla="0">0</button>
+          <button type="button" data-tecla="." aria-label="Vírgula decimal">.</button>
+          <button type="button" class="igual largo" data-acao="calcular" aria-label="Igual">=</button>
+        </div>
+
+        <div class="teclas cientifica" id="calc-cientifico" hidden>
+          <button type="button" class="func" data-acao="limpar" aria-label="Limpar">C</button>
+          <button type="button" class="func" data-acao="apagar" aria-label="Apagar">⌫</button>
+          <button type="button" class="sci" data-tecla="(">(</button>
+          <button type="button" class="sci" data-tecla=")">)</button>
+          <button type="button" class="op" data-tecla="÷" aria-label="Dividir">÷</button>
+          <button type="button" class="sci" data-funcao="sin">sin</button>
+          <button type="button" class="sci" data-funcao="cos">cos</button>
+          <button type="button" class="sci" data-funcao="tan">tan</button>
+          <button type="button" class="sci" data-tecla="^" aria-label="Potência">xʸ</button>
+          <button type="button" class="op" data-tecla="×" aria-label="Multiplicar">×</button>
+          <button type="button" class="sci" data-funcao="sqrt" aria-label="Raiz quadrada">√</button>
+          <button type="button" class="sci" data-funcao="log">log</button>
+          <button type="button" class="sci" data-funcao="ln">ln</button>
+          <button type="button" class="sci" data-tecla="^2" aria-label="Ao quadrado">x²</button>
+          <button type="button" class="op" data-tecla="−" aria-label="Menos">−</button>
+          <button type="button" data-tecla="7">7</button>
+          <button type="button" data-tecla="8">8</button>
+          <button type="button" data-tecla="9">9</button>
+          <button type="button" class="sci" data-tecla="π" aria-label="Pi">π</button>
+          <button type="button" class="op" data-tecla="+" aria-label="Mais">+</button>
+          <button type="button" data-tecla="4">4</button>
+          <button type="button" data-tecla="5">5</button>
+          <button type="button" data-tecla="6">6</button>
+          <button type="button" class="sci" data-funcao="fatorial" aria-label="Fatorial">x!</button>
+          <button type="button" class="sci" data-tecla="e" aria-label="Número de Euler">e</button>
+          <button type="button" data-tecla="1">1</button>
+          <button type="button" data-tecla="2">2</button>
+          <button type="button" data-tecla="3">3</button>
+          <button type="button" data-tecla="0">0</button>
+          <button type="button" data-tecla="." aria-label="Vírgula decimal">.</button>
+          <button type="button" class="igual inteiro" data-acao="calcular" aria-label="Igual">=</button>
+        </div>
+
+        <details class="historico" id="calc-historico">
+          <summary>Histórico (últimos 10)</summary>
+          <ul id="calc-lista-historico"></ul>
+          <button type="button" class="botao neutro" id="calc-limpar-historico">Limpar histórico</button>
+        </details>
+
+        <div class="extra" id="calc-financeiro" hidden>
+          <p class="dica">Como na HP 12C: dinheiro que sai do seu bolso vai com sinal de menos. Preencha o que sabe e toque no
+            que quer calcular.</p>
+          <div class="grade-campos">
+            <label class="campo">n (períodos)<input type="number" id="fin-n" placeholder="ex.: 12" inputmode="decimal"></label>
+            <label class="campo">i (taxa % por período)<input type="number" id="fin-i" placeholder="ex.: 2.5" inputmode="decimal"></label>
+            <label class="campo">PV (valor presente)<input type="number" id="fin-pv" placeholder="ex.: 1000" inputmode="decimal"></label>
+            <label class="campo">PMT (parcela)<input type="number" id="fin-pmt" placeholder="ex.: -100" inputmode="decimal"></label>
+            <label class="campo">FV (valor futuro)<input type="number" id="fin-fv" placeholder="ex.: 0" inputmode="decimal"></label>
+          </div>
+          <div class="botoes-fin">
+            <button type="button" data-alvo="n">n</button>
+            <button type="button" data-alvo="i">i</button>
+            <button type="button" data-alvo="pv">PV</button>
+            <button type="button" data-alvo="pmt">PMT</button>
+            <button type="button" data-alvo="fv">FV</button>
+            <button type="button" class="func" id="fin-limpar">Limpar</button>
+          </div>
+          <p class="resultado" id="fin-resultado" aria-live="polite"></p>
+        </div>
+
+        <div class="extra" id="calc-taxas" hidden>
+          <label class="campo">Taxa conhecida (%)<input type="number" id="taxa-valor" placeholder="ex.: 1" inputmode="decimal"></label>
+          <div class="grade-campos">
+            <label class="campo">Período de origem
+              <select id="taxa-de">
+                <option value="1">Diária</option>
+                <option value="30" selected>Mensal</option>
+                <option value="90">Trimestral</option>
+                <option value="180">Semestral</option>
+                <option value="360">Anual</option>
+              </select>
+            </label>
+            <label class="campo">Converter para
+              <select id="taxa-para">
+                <option value="1">Diária</option>
+                <option value="30">Mensal</option>
+                <option value="90">Trimestral</option>
+                <option value="180">Semestral</option>
+                <option value="360" selected>Anual</option>
+              </select>
+            </label>
+          </div>
+          <button type="button" class="botao principal" id="taxa-converter">Converter</button>
+          <p class="resultado" id="taxa-resultado" aria-live="polite"></p>
+          <p class="dica">Juros compostos, ano comercial de 360 dias (como no mercado).</p>
+        </div>
+
+        <div class="extra" id="calc-amortizacao" hidden>
+          <div class="grade-campos">
+            <label class="campo">Valor financiado (PV)<input type="number" id="am-pv" placeholder="ex.: 10000" inputmode="decimal"></label>
+            <label class="campo">Taxa % ao período<input type="number" id="am-i" placeholder="ex.: 1.5" inputmode="decimal"></label>
+            <label class="campo">Nº de parcelas (até 600)<input type="number" id="am-n" placeholder="ex.: 12" inputmode="numeric"></label>
+            <label class="campo">Sistema
+              <select id="am-sistema">
+                <option value="price">Price (parcelas fixas)</option>
+                <option value="sac">SAC (amortização fixa)</option>
+              </select>
+            </label>
+          </div>
+          <button type="button" class="botao principal" id="am-gerar">Gerar tabela</button>
+          <div class="tabela-amortizacao" id="am-resultado"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CHAT ================= -->
+    <section class="painel chat" id="painel-chat" aria-labelledby="titulo-chat">
+      <div class="cabeca">
+        <h1 id="titulo-chat">Chat</h1>
+        <p class="resumo">Escreva um comando: cuida das tarefas, anota e faz contas.</p>
+      </div>
+      <div class="cartao">
+        <div class="conversa" id="conversa" aria-live="polite"></div>
+        <form class="linha" id="form-chat" autocomplete="off">
+          <label class="oculto" for="campo-chat">Comando</label>
+          <input type="text" id="campo-chat" placeholder="Ex.: add comprar pão" maxlength="200">
+          <button type="submit" class="botao principal">Enviar</button>
+        </form>
+        <p class="dica">Comandos: <code>add tarefa</code> · <code>done nº</code> · <code>del nº</code> · <code>list</code> ·
+          <code>calc conta</code> · <code>nota texto</code> · <code>abrir notas</code> · <code>clear</code> · <code>help</code></p>
+      </div>
+    </section>
+  </main>
+
+  <div class="aviso" id="aviso" role="status" aria-live="polite" hidden>
+    <span id="aviso-texto"></span>
+    <button type="button" id="aviso-acao" hidden></button>
+  </div>
 </body>
 </html>
